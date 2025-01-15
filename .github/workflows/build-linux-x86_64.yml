@@ -19,6 +19,10 @@ on:
         description: build cli binary
         default: true
         type: boolean
+      build-cgi:
+        description: build cgi binary
+        default: true
+        type: boolean
       build-micro:
         description: build phpmicro binary
         type: boolean
@@ -83,13 +87,15 @@ jobs:
         run: echo "SPC_BUILD_MICRO=--build-micro" >> $GITHUB_ENV
       - if: ${{ inputs.build-fpm == true }}
         run: echo "SPC_BUILD_FPM=--build-fpm" >> $GITHUB_ENV
+      - if: ${{ inputs.build-cgi == true }}
+        run: echo "SPC_BUILD_CGI=--build-cgi" >> $GITHUB_ENV
 
       # If there's no dependencies cache, fetch sources, with or without debug
       - if: steps.cache-download.outputs.cache-hit != 'true'
         run: CACHE_API_EXEC=yes ./bin/spc-alpine-docker download --with-php=${{ inputs.version }} --for-extensions=${{ inputs.extensions }} ${{ env.SPC_BUILD_DEBUG }} ${{ env.SPC_PRE_BUILT }}
 
       # Run build command
-      - run: ./bin/spc-alpine-docker build ${{ inputs.extensions }} ${{ env.SPC_BUILD_DEBUG }} ${{ env.SPC_BUILD_CLI }} ${{ env.SPC_BUILD_MICRO }} ${{ env.SPC_BUILD_FPM }}
+      - run: ./bin/spc-alpine-docker build ${{ inputs.extensions }} ${{ env.SPC_BUILD_DEBUG }} ${{ env.SPC_BUILD_CLI }} ${{ env.SPC_BUILD_CGI }} ${{ env.SPC_BUILD_MICRO }} ${{ env.SPC_BUILD_FPM }}
 
       # Upload cli executable
       - if: ${{ inputs.build-cli == true }}
@@ -111,6 +117,13 @@ jobs:
         with:
           name: php-fpm-${{ inputs.version }}-${{ env.SPC_BUILD_OS }}
           path: buildroot/bin/php-fpm
+
+      # Upload fpm executable
+      - if: ${{ inputs.build-cgi == true }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: php-cgi-${{ inputs.version }}-${{ env.SPC_BUILD_OS }}
+          path: buildroot/bin/php-cgi
 
       # Upload extensions metadata
       - uses: actions/upload-artifact@v4
