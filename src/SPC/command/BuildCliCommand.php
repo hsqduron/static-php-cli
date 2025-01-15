@@ -28,6 +28,7 @@ class BuildCliCommand extends BuildCommand
         $this->addOption('with-libs', null, InputOption::VALUE_REQUIRED, 'add additional libraries, comma separated', '');
         $this->addOption('build-micro', null, null, 'Build micro SAPI');
         $this->addOption('build-cli', null, null, 'Build cli SAPI');
+		$this->addOption('build-cgi', null, null, 'Build cgi SAPI');
         $this->addOption('build-fpm', null, null, 'Build fpm SAPI');
         $this->addOption('build-embed', null, null, 'Build embed SAPI');
         $this->addOption('build-all', null, null, 'Build all SAPI');
@@ -60,6 +61,7 @@ class BuildCliCommand extends BuildCommand
         if ($rule === BUILD_TARGET_NONE) {
             $this->output->writeln('<error>Please add at least one build target!</error>');
             $this->output->writeln("<comment>\t--build-cli\tBuild php-cli SAPI</comment>");
+			$this->output->writeln("<comment>\t--build-cgi\tBuild php-cgi SAPI</comment>");
             $this->output->writeln("<comment>\t--build-micro\tBuild phpmicro SAPI</comment>");
             $this->output->writeln("<comment>\t--build-fpm\tBuild php-fpm SAPI</comment>");
             $this->output->writeln("<comment>\t--build-embed\tBuild embed SAPI/libphp</comment>");
@@ -199,6 +201,11 @@ class BuildCliCommand extends BuildCommand
                 $path = FileSystem::convertPath("{$build_root_path}/bin/php{$win_suffix}");
                 logger()->info("Static php binary path{$fixed}: {$path}");
             }
+			if (($rule & BUILD_TARGET_CGI) === BUILD_TARGET_CGI) {
+                $win_suffix = PHP_OS_FAMILY === 'Windows' ? '.exe' : '';
+                $path = FileSystem::convertPath("{$build_root_path}/bin/php-cgi{$win_suffix}");
+                logger()->info("Static php binary path{$fixed}: {$path}");
+            }
             if (($rule & BUILD_TARGET_MICRO) === BUILD_TARGET_MICRO) {
                 $path = FileSystem::convertPath("{$build_root_path}/bin/micro.sfx");
                 logger()->info("phpmicro binary path{$fixed}: {$path}");
@@ -239,6 +246,7 @@ class BuildCliCommand extends BuildCommand
     {
         $rule = BUILD_TARGET_NONE;
         $rule |= ($this->getOption('build-cli') ? BUILD_TARGET_CLI : BUILD_TARGET_NONE);
+		$rule |= ($this->getOption('build-cgi') ? BUILD_TARGET_CGI : BUILD_TARGET_NONE);
         $rule |= ($this->getOption('build-micro') ? BUILD_TARGET_MICRO : BUILD_TARGET_NONE);
         $rule |= ($this->getOption('build-fpm') ? BUILD_TARGET_FPM : BUILD_TARGET_NONE);
         $rule |= ($this->getOption('build-embed') ? BUILD_TARGET_EMBED : BUILD_TARGET_NONE);
