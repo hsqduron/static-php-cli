@@ -319,6 +319,9 @@ abstract class BuilderBase
         if (($type & BUILD_TARGET_CLI) === BUILD_TARGET_CLI) {
             $ls[] = 'cli';
         }
+		if (($type & BUILD_TARGET_CGI) === BUILD_TARGET_CGI) {
+            $ls[] = 'cgi';
+        }
         if (($type & BUILD_TARGET_MICRO) === BUILD_TARGET_MICRO) {
             $ls[] = 'micro';
         }
