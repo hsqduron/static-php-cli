@@ -213,7 +213,7 @@ abstract class UnixBuilderBase extends BuilderBase
             BUILD_TARGET_CLI => SOURCE_PATH . '/php-src/sapi/cli/php',
             BUILD_TARGET_MICRO => SOURCE_PATH . '/php-src/sapi/micro/micro.sfx',
             BUILD_TARGET_FPM => SOURCE_PATH . '/php-src/sapi/fpm/php-fpm',
-			BUILD_TARGET_CGI => SOURCE_PATH . '/php-src/sapi/fpm/php-cgi',
+			BUILD_TARGET_CGI => SOURCE_PATH . '/php-src/sapi/cgi/php-cgi',
             default => throw new RuntimeException('Deployment does not accept type ' . $type),
         };
         logger()->info('Deploying ' . $this->getBuildTypeName($type) . ' file');
