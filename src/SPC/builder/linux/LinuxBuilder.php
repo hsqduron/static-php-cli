@@ -140,6 +140,7 @@ class LinuxBuilder extends UnixBuilderBase
             ('--with-config-file-scan-dir=' . $this->getOption('with-config-file-scan-dir') . ' ') : '';
 
         $enable_cli = ($build_target & BUILD_TARGET_CLI) === BUILD_TARGET_CLI;
+		$enable_cgi = ($build_target & BUILD_TARGET_CGI) === BUILD_TARGET_CGI;
         $enable_fpm = ($build_target & BUILD_TARGET_FPM) === BUILD_TARGET_FPM;
         $enable_micro = ($build_target & BUILD_TARGET_MICRO) === BUILD_TARGET_MICRO;
         $enable_embed = ($build_target & BUILD_TARGET_EMBED) === BUILD_TARGET_EMBED;
@@ -187,6 +188,10 @@ class LinuxBuilder extends UnixBuilderBase
             logger()->info('building cli');
             $this->buildCli();
         }
+		if ($enable_cgi) {
+            logger()->info('building cgi');
+            $this->buildCgi();
+        }
         if ($enable_fpm) {
             logger()->info('building fpm');
             $this->buildFpm();
@@ -231,6 +236,24 @@ class LinuxBuilder extends UnixBuilderBase
         }
 
         $this->deployBinary(BUILD_TARGET_CLI);
+    }
+
+	protected function buildCgi(): void
+    {
+        $vars = SystemUtil::makeEnvVarString($this->getMakeExtraVars());
+        shell()->cd(SOURCE_PATH . '/php-src')
+            ->exec('sed -i "s|//lib|/lib|g" Makefile')
+            ->exec("\$SPC_CMD_PREFIX_PHP_MAKE {$vars} cgi");
+
+        if ($this->getOption('with-upx-pack')) {
+            shell()->cd(SOURCE_PATH . '/php-src/sapi/cgi')
+                ->exec('strip --strip-all php')
+                ->exec(getenv('UPX_EXEC') . ' --best php');
+        } elseif (!$this->getOption('no-strip', false)) {
+            shell()->cd(SOURCE_PATH . '/php-src/sapi/cgi')->exec('strip --strip-all php');
+        }
+
+        $this->deployBinary(BUILD_TARGET_CGI);
     }
 
     /**
