@@ -245,13 +245,13 @@ class LinuxBuilder extends UnixBuilderBase
             ->exec('sed -i "s|//lib|/lib|g" Makefile')
             ->exec("\$SPC_CMD_PREFIX_PHP_MAKE {$vars} cgi");
 
-        /*if ($this->getOption('with-upx-pack')) {
+        if ($this->getOption('with-upx-pack')) {
             shell()->cd(SOURCE_PATH . '/php-src/sapi/cgi')
-                ->exec('strip --strip-all php')
-                ->exec(getenv('UPX_EXEC') . ' --best php');
+                ->exec('strip --strip-all php-cgi')
+                ->exec(getenv('UPX_EXEC') . ' --best php-cgi');
         } elseif (!$this->getOption('no-strip', false)) {
-            shell()->cd(SOURCE_PATH . '/php-src/sapi/cgi')->exec('strip --strip-all php');
-        }*/
+            shell()->cd(SOURCE_PATH . '/php-src/sapi/cgi')->exec('strip --strip-all php-cgi');
+        }
 
         $this->deployBinary(BUILD_TARGET_CGI);
     }
